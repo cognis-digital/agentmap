@@ -1,0 +1,19 @@
+{
+  "connections": [
+    {
+      "from": "researcher",
+      "to": "github",
+      "authenticated": true,
+      "monitored": true,
+      "transport": "stdio"
+    },
+    {
+      "from": "rogue-scraper",
+      "to": "weather",
+      "authenticated": false,
+      "monitored": false,
+      "transport": "http",
+      "note": "agent observed in telemetry but declared nowhere — shadow AI"
+    }
+  ]
+}

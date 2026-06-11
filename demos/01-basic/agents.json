@@ -1,0 +1,23 @@
+{
+  "agents": [
+    {
+      "name": "planner",
+      "model": "claude-sonnet",
+      "role": "orchestrator",
+      "logging": true,
+      "uses": ["github", "internal-notes"],
+      "peers": [
+        { "name": "researcher", "auth": { "token": "${A2A_TOKEN}" } }
+      ]
+    },
+    {
+      "name": "researcher",
+      "model": "claude-haiku",
+      "role": "worker",
+      "logging": true,
+      "uses": [
+        { "name": "weather" }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "mcpServers": {
+    "github": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-github"],
+      "env": { "GITHUB_TOKEN": "${GITHUB_TOKEN}" },
+      "logging": true,
+      "tools": [
+        { "name": "create_issue" },
+        { "name": "search_code" }
+      ]
+    },
+    "weather": {
+      "url": "http://10.0.0.7:8080/sse",
+      "logging": true,
+      "tools": [{ "name": "get_forecast" }]
+    },
+    "internal-notes": {
+      "command": "python",
+      "args": ["-m", "notes_server"],
+      "auth": { "bearer": "${NOTES_TOKEN}" },
+      "logging": true
+    }
+  }
+}
