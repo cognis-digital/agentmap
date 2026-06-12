@@ -25,7 +25,7 @@ tools**, then flags every link that is **unauthenticated**, **unmonitored**, or
 ## Install
 
 ```bash
-pip install cognis-agentmap
+pip install "git+https://github.com/cognis-digital/agentmap.git"
 # or, from this repo:
 pip install -e ".[dev]"
 ```

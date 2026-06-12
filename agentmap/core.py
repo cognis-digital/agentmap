@@ -39,7 +39,7 @@ import json
 import os
 import re
 from dataclasses import dataclass, field, asdict
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Tuple
 
 TOOL_NAME = "agentmap"
 TOOL_VERSION = "0.1.0"
