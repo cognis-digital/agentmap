@@ -12,6 +12,31 @@
 
 *AI Security & Governance — securing LLMs, agents, and the MCP supply chain.*
 
+## Usage — step by step
+
+1. **Install** the mapper:
+   ```bash
+   pip install cognis-agentmap
+   ```
+2. **Map a project** — point `map` at a directory (or single file) holding `mcp.json`, agent configs, `.env`, or `observations.json`. It discovers config sources and builds the communication graph:
+   ```bash
+   agentmap map demos/01-basic
+   ```
+3. **Filter findings** by severity while you triage. `--min-severity` controls what is reported:
+   ```bash
+   agentmap map demos/01-basic --min-severity low
+   ```
+4. **Read the output** in the format you need. `--format` accepts `table` (default), `json`, `mermaid`, or `sarif`; `--out` writes to a file:
+   ```bash
+   agentmap map demos/01-basic --format mermaid --out graph.mmd   # paste into any Mermaid renderer
+   agentmap map demos/01-basic --format json --out graph.json
+   ```
+5. **Automate in CI** — `--fail-on` exits non-zero when a finding at or above the threshold appears (default `high`):
+   ```yaml
+   - run: pip install cognis-agentmap
+   - run: agentmap map . --format sarif --out agentmap.sarif --fail-on high
+   ```
+
 ## Why
 
 LLM agents quietly accumulate MCP servers, peer agents, and tools. Most of
