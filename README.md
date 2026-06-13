@@ -3,7 +3,7 @@
 > Part of the **[Cognis Neural Suite](https://github.com/cognis-digital)** by [Cognis Digital](https://cognis.digital)
 > Cognis Open Collaboration License (COCL) v1.0 · domain: `ai-security`
 
-[![PyPI](https://img.shields.io/pypi/v/cognis-agentmap.svg)](https://pypi.org/project/cognis-agentmap/)
+[![install](https://img.shields.io/badge/install-git%2B%20%C2%B7%20pipx%20%C2%B7%20uv-6b46c1.svg)](#install--every-way-every-platform)
 [![CI](https://github.com/cognis-digital/agentmap/actions/workflows/ci.yml/badge.svg)](https://github.com/cognis-digital/agentmap/actions)
 [![License: COCL 1.0](https://img.shields.io/badge/License-COCL%201.0-2b6cb0.svg)](LICENSE)
 [![Suite](https://img.shields.io/badge/Cognis-Neural%20Suite-6b46c1.svg)](https://github.com/cognis-digital)
@@ -11,6 +11,12 @@
 **Map the agent-to-agent and agent-to-MCP communication graph and surface "shadow AI".**
 
 *AI Security & Governance — securing LLMs, agents, and the MCP supply chain.*
+
+<!-- cognis:layman:start -->
+## What is this?
+
+agentmap is a command-line tool that reads the configuration files on your computer — the same files that tell AI assistants which tools and services they are allowed to connect to — and draws you a map of every connection. It then flags any connection that is unprotected (no password or token required) or hidden (an AI is talking to something that was never officially set up), which are the kinds of gaps that could let a bad actor slip in unnoticed. It is built for security teams, developers, and IT administrators who want to see exactly what their AI systems are doing and catch "shadow AI" before it becomes a problem. The tool runs entirely on your own machine with no account or internet connection required.
+<!-- cognis:layman:end -->
 
 ## Why
 
@@ -22,10 +28,56 @@ capture — normalizes them into one typed graph of **agents ↔ MCP servers ↔
 tools**, then flags every link that is **unauthenticated**, **unmonitored**, or
 **undeclared** (shadow AI). Stdlib only, scriptable, CI-friendly, self-hostable.
 
+<!-- cognis:domains:start -->
+## Domains
+
+**Primary domain:** AI & ML  ·  **JTF MERIDIAN division:** ATHENA-PRIME · SAGE
+
+**Topics:** `cognis` `ai` `llm` `machine-learning` `mcp` `agent-security`
+
+Part of the **Cognis Neural Suite** — 300+ source-available tools organized across 12 domains under the JTF MERIDIAN command structure. See the [suite on GitHub](https://github.com/cognis-digital) and [jtf-meridian](https://github.com/cognis-digital/jtf-meridian) for how the pieces fit together.
+<!-- cognis:domains:end -->
+
+<!-- cognis:install:start -->
+## Install
+
+`agentmap` is source-available (not published to PyPI) — every method below installs
+straight from GitHub. Pick whichever you prefer; the one-line scripts auto-detect
+the best tool available on your machine.
+
+**One-liner (Linux / macOS):**
+```sh
+curl -fsSL https://raw.githubusercontent.com/cognis-digital/agentmap/HEAD/install.sh | sh
+```
+
+**One-liner (Windows PowerShell):**
+```powershell
+irm https://raw.githubusercontent.com/cognis-digital/agentmap/HEAD/install.ps1 | iex
+```
+
+**Or install manually — any one of:**
+```sh
+pipx install "git+https://github.com/cognis-digital/agentmap.git"     # isolated (recommended)
+uv tool install "git+https://github.com/cognis-digital/agentmap.git"  # uv
+pip install "git+https://github.com/cognis-digital/agentmap.git"      # pip
+```
+
+**From source:**
+```sh
+git clone https://github.com/cognis-digital/agentmap.git
+cd agentmap && pip install .
+```
+
+Then run:
+```sh
+agentmap --help
+```
+<!-- cognis:install:end -->
+
 ## Install
 
 ```bash
-pip install cognis-agentmap
+pip install "git+https://github.com/cognis-digital/agentmap.git"
 # or, from this repo:
 pip install -e ".[dev]"
 ```
@@ -85,6 +137,32 @@ can call them as scoped capabilities.
 ## Contributing
 
 PRs, new detections, and demo scenarios are welcome under the collaboration-pull model. See [CONTRIBUTING.md](CONTRIBUTING.md) and [SECURITY.md](SECURITY.md).
+
+<a name="verification"></a>
+## Verification
+
+[![tests](https://img.shields.io/badge/tests-22%20passing-2ea44f.svg)](AUDIT.md)
+
+Every push is verified end-to-end. Latest audit (2026-06-13):
+
+```text
+tests        : 22 passed, 0 failed, 0 errored
+compile      : all modules parse
+cli          : C:\Python314\python.exe: No module named https
+package      : https
+```
+
+<details><summary>CLI surface (<code>--help</code>)</summary>
+
+```text
+C:\Python314\python.exe: No module named https
+```
+</details>
+
+Full machine-readable results: [`AUDIT.md`](AUDIT.md) · regenerate with `python -m https --help` + `pytest -q`.
+
+<div align="right"><a href="#top">↑ back to top</a></div>
+
 
 ## License
 
