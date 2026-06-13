@@ -12,6 +12,12 @@
 
 *AI Security & Governance — securing LLMs, agents, and the MCP supply chain.*
 
+<!-- cognis:layman:start -->
+## What is this?
+
+agentmap is a command-line tool that reads the configuration files on your computer — the same files that tell AI assistants which tools and services they are allowed to connect to — and draws you a map of every connection. It then flags any connection that is unprotected (no password or token required) or hidden (an AI is talking to something that was never officially set up), which are the kinds of gaps that could let a bad actor slip in unnoticed. It is built for security teams, developers, and IT administrators who want to see exactly what their AI systems are doing and catch "shadow AI" before it becomes a problem. The tool runs entirely on your own machine with no account or internet connection required.
+<!-- cognis:layman:end -->
+
 ## Why
 
 LLM agents quietly accumulate MCP servers, peer agents, and tools. Most of
@@ -21,6 +27,42 @@ almost none are logged. `agentmap` reads the config you already have on disk —
 capture — normalizes them into one typed graph of **agents ↔ MCP servers ↔
 tools**, then flags every link that is **unauthenticated**, **unmonitored**, or
 **undeclared** (shadow AI). Stdlib only, scriptable, CI-friendly, self-hostable.
+
+<!-- cognis:install:start -->
+## Install
+
+`agentmap` is source-available (not published to PyPI) — every method below installs
+straight from GitHub. Pick whichever you prefer; the one-line scripts auto-detect
+the best tool available on your machine.
+
+**One-liner (Linux / macOS):**
+```sh
+curl -fsSL https://raw.githubusercontent.com/cognis-digital/agentmap/HEAD/install.sh | sh
+```
+
+**One-liner (Windows PowerShell):**
+```powershell
+irm https://raw.githubusercontent.com/cognis-digital/agentmap/HEAD/install.ps1 | iex
+```
+
+**Or install manually — any one of:**
+```sh
+pipx install "git+https://github.com/cognis-digital/agentmap.git"     # isolated (recommended)
+uv tool install "git+https://github.com/cognis-digital/agentmap.git"  # uv
+pip install "git+https://github.com/cognis-digital/agentmap.git"      # pip
+```
+
+**From source:**
+```sh
+git clone https://github.com/cognis-digital/agentmap.git
+cd agentmap && pip install .
+```
+
+Then run:
+```sh
+agentmap --help
+```
+<!-- cognis:install:end -->
 
 ## Install
 
