@@ -220,8 +220,13 @@ class ConfigError(ValueError):
 # ---------------------------------------------------------------------------
 
 def _read_json(path: str) -> Any:
-    with open(path, "r", encoding="utf-8") as fh:
-        raw = fh.read()
+    try:
+        with open(path, "r", encoding="utf-8") as fh:
+            raw = fh.read()
+    except OSError as exc:
+        raise ConfigError(f"cannot read {path}: {exc}") from exc
+    if not raw.strip():
+        raise ConfigError(f"empty file: {path}")
     try:
         return json.loads(raw)
     except json.JSONDecodeError as exc:
@@ -231,20 +236,24 @@ def _read_json(path: str) -> Any:
 def parse_env_file(path: str) -> Dict[str, str]:
     """Parse a dotenv-style file into a dict. Tolerant of comments/blanks."""
     out: Dict[str, str] = {}
-    with open(path, "r", encoding="utf-8") as fh:
-        for line in fh:
-            line = line.strip()
-            if not line or line.startswith("#"):
-                continue
-            if line.lower().startswith("export "):
-                line = line[7:].strip()
-            if "=" not in line:
-                continue
-            k, v = line.split("=", 1)
-            k = k.strip()
-            v = v.strip().strip('"').strip("'")
-            if k:
-                out[k] = v
+    try:
+        with open(path, "r", encoding="utf-8") as fh:
+            lines = fh.readlines()
+    except OSError as exc:
+        raise ConfigError(f"cannot read env file {path}: {exc}") from exc
+    for line in lines:
+        line = line.strip()
+        if not line or line.startswith("#"):
+            continue
+        if line.lower().startswith("export "):
+            line = line[7:].strip()
+        if "=" not in line:
+            continue
+        k, v = line.split("=", 1)
+        k = k.strip()
+        v = v.strip().strip('"').strip("'")
+        if k:
+            out[k] = v
     return out
 
 
@@ -253,8 +262,9 @@ def _env_refs(value: Any) -> List[str]:
     found: List[str] = []
     if isinstance(value, str):
         for m in _ENV_REF_RE.finditer(value):
-            name = next(g for g in m.groups() if g)
-            found.append(name)
+            matched = next((g for g in m.groups() if g is not None), None)
+            if matched:
+                found.append(matched)
     elif isinstance(value, dict):
         for v in value.values():
             found.extend(_env_refs(v))
@@ -369,6 +379,11 @@ def discover_sources(root: str) -> Dict[str, List[str]]:
 
 def _ingest_mcp(path: str, data: Any, graph: Graph,
                 env: Dict[str, str]) -> None:
+    if not isinstance(data, dict):
+        raise ConfigError(
+            f"{path}: expected a JSON object at the top level, "
+            f"got {type(data).__name__}"
+        )
     servers = {}
     if isinstance(data, dict):
         servers = data.get("mcpServers") or data.get("servers") or {}
@@ -669,20 +684,44 @@ def build_graph(root: str) -> Graph:
             continue
 
     for p in buckets["mcp"]:
-        data = _read_json(p)
-        _ingest_mcp(p, data, graph, env)
-        graph.sources.append(os.path.basename(p))
+        try:
+            data = _read_json(p)
+            _ingest_mcp(p, data, graph, env)
+            graph.sources.append(os.path.basename(p))
+        except ConfigError as exc:
+            graph.findings.append(Finding(
+                "source.parse_error", "medium",
+                f"Skipped {os.path.basename(p)}: {exc}",
+                p,
+                "Fix the file so it is valid JSON with the expected schema.",
+            ))
 
     for p in buckets["agents"]:
-        data = _read_json(p)
-        _ingest_agents(p, data, graph, env)
-        graph.sources.append(os.path.basename(p))
+        try:
+            data = _read_json(p)
+            _ingest_agents(p, data, graph, env)
+            graph.sources.append(os.path.basename(p))
+        except ConfigError as exc:
+            graph.findings.append(Finding(
+                "source.parse_error", "medium",
+                f"Skipped {os.path.basename(p)}: {exc}",
+                p,
+                "Fix the file so it is valid JSON with the expected schema.",
+            ))
 
     # observations last, so node inventory is fully populated for shadow checks
     for p in buckets["observations"]:
-        data = _read_json(p)
-        _ingest_observations(p, data, graph)
-        graph.sources.append(os.path.basename(p))
+        try:
+            data = _read_json(p)
+            _ingest_observations(p, data, graph)
+            graph.sources.append(os.path.basename(p))
+        except ConfigError as exc:
+            graph.findings.append(Finding(
+                "source.parse_error", "medium",
+                f"Skipped {os.path.basename(p)}: {exc}",
+                p,
+                "Fix the file so it is valid JSON with the expected schema.",
+            ))
 
     _apply_rules(graph)
     return graph
@@ -751,7 +790,7 @@ _SEV_LABEL = {
 def to_table(graph: Graph) -> str:
     s = graph.summary
     lines: List[str] = []
-    lines.append(f"agentmap — agent / MCP communication map")
+    lines.append("agentmap — agent / MCP communication map")
     lines.append("sources: " + (", ".join(graph.sources) or "(none)"))
     lines.append("=" * 72)
     lines.append(

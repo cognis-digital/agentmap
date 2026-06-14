@@ -38,8 +38,15 @@ _INPUT_SCHEMA = {
 
 def _run_scan(arguments: Dict[str, Any]) -> Dict[str, Any]:
     path = arguments.get("path")
-    if not path:
+    if path is None:
         raise ValueError("missing required argument: path")
+    if not isinstance(path, str):
+        raise ValueError(
+            f"'path' must be a string, got {type(path).__name__}"
+        )
+    path = path.strip()
+    if not path:
+        raise ValueError("'path' must be a non-empty string")
     return scan(path)
 
 
@@ -86,24 +93,33 @@ def _handle(method: str, params: Dict[str, Any]) -> Any:
 
 
 def _serve_stdio() -> int:
-    for line in sys.stdin:
-        line = line.strip()
-        if not line:
-            continue
-        try:
-            req = json.loads(line)
-        except json.JSONDecodeError:
-            continue
-        rid = req.get("id")
-        try:
-            result = _handle(req.get("method", ""), req.get("params") or {})
-            resp = {"jsonrpc": "2.0", "id": rid, "result": result}
-        except Exception as exc:  # noqa: BLE001
-            resp = {"jsonrpc": "2.0", "id": rid,
-                    "error": {"code": -32603, "message": str(exc)}}
-        if rid is not None:
-            sys.stdout.write(json.dumps(resp) + "\n")
-            sys.stdout.flush()
+    try:
+        for line in sys.stdin:
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                req = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+            if not isinstance(req, dict):
+                continue
+            rid = req.get("id")
+            try:
+                result = _handle(req.get("method", ""), req.get("params") or {})
+                resp = {"jsonrpc": "2.0", "id": rid, "result": result}
+            except Exception as exc:  # noqa: BLE001
+                resp = {"jsonrpc": "2.0", "id": rid,
+                        "error": {"code": -32603, "message": str(exc)}}
+            if rid is not None:
+                try:
+                    sys.stdout.write(json.dumps(resp) + "\n")
+                    sys.stdout.flush()
+                except OSError:
+                    # Broken pipe or closed stdout — stop serving.
+                    break
+    except KeyboardInterrupt:
+        pass
     return 0
 
 

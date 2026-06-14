@@ -52,8 +52,12 @@ def _build_parser() -> argparse.ArgumentParser:
 
 def _emit(text: str, out: Optional[str]) -> None:
     if out:
-        with open(out, "w", encoding="utf-8") as fh:
-            fh.write(text + ("\n" if not text.endswith("\n") else ""))
+        try:
+            with open(out, "w", encoding="utf-8") as fh:
+                fh.write(text + ("\n" if not text.endswith("\n") else ""))
+        except OSError as exc:
+            print(f"error: cannot write to {out!r}: {exc}", file=sys.stderr)
+            raise
     else:
         print(text)
 
@@ -71,14 +75,18 @@ def _run_map(args: argparse.Namespace) -> int:
         if SEVERITY_ORDER.get(f.severity, 99) <= threshold
     ]
 
-    if args.format == "json":
-        _emit(json.dumps(graph.to_dict(), indent=2), args.out)
-    elif args.format == "mermaid":
-        _emit(to_mermaid(graph), args.out)
-    elif args.format == "sarif":
-        _emit(json.dumps(to_sarif(graph), indent=2), args.out)
-    else:
-        _emit(to_table(graph), args.out)
+    try:
+        if args.format == "json":
+            _emit(json.dumps(graph.to_dict(), indent=2), args.out)
+        elif args.format == "mermaid":
+            _emit(to_mermaid(graph), args.out)
+        elif args.format == "sarif":
+            _emit(json.dumps(to_sarif(graph), indent=2), args.out)
+        else:
+            _emit(to_table(graph), args.out)
+    except OSError:
+        # _emit already printed the error; treat as a fatal CLI error.
+        return 2
 
     fail_threshold = SEVERITY_ORDER[args.fail_on]
     worst = min((SEVERITY_ORDER.get(f.severity, 99)
