@@ -12,6 +12,37 @@
 
 *AI Security & Governance — securing LLMs, agents, and the MCP supply chain.*
 
+
+<!-- cognis:example:start -->
+## 🔎 Example output
+
+Real, reproducible output from the tool — runs offline:
+
+```console
+$ agentmap-emit --version
+agentmap 0.1.0
+```
+
+```console
+$ agentmap-emit --help
+usage: agentmap [-h] [--version] {map} ...
+
+Map agent-to-agent / agent-to-MCP communications and flag shadow AI
+(unauthenticated / unmonitored / undeclared links).
+
+positional arguments:
+  {map}
+    map       Discover config sources under a path and map the graph.
+
+options:
+  -h, --help  show this help message and exit
+  --version   show program's version number and exit
+```
+
+> Blocks above are real `agentmap` output — reproduce them from a clone.
+
+<!-- cognis:example:end -->
+
 ## Usage — step by step
 
 1. **Install** the mapper:

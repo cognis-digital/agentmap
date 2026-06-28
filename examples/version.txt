@@ -1,0 +1,3 @@
+$ agentmap-emit --version
+
+agentmap 0.1.0

@@ -1,0 +1,14 @@
+$ agentmap-emit --help
+
+usage: agentmap [-h] [--version] {map} ...
+
+Map agent-to-agent / agent-to-MCP communications and flag shadow AI
+(unauthenticated / unmonitored / undeclared links).
+
+positional arguments:
+  {map}
+    map       Discover config sources under a path and map the graph.
+
+options:
+  -h, --help  show this help message and exit
+  --version   show program's version number and exit
